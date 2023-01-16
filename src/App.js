@@ -1,65 +1,66 @@
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import Info from './Info.js';
-import { useState } from 'react';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useState,useEffect } from "react";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Button from "@mui/material/Button";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Dashboard from "./Dashboard";
+import AddUser from "./AddUser";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import EditUser from "./EditUser";
+import UserDetail from "./UserDetail";
 
 function App() {
-  const [count, setCount] = useState(0);
-  let increment = () => { setCount(count + 1) }
-  let decrement = () => { setCount(count - 1) }
+  const navigate = useNavigate();
+  const [detail, setDetail] = useState([]);
+  const [mode, setMode] = useState("light");
+  const theme = createTheme({
+    palette: {
+      mode: mode,
+    },
+  });
+
+  useEffect(() => {
+    fetch("https://63a3d79c471b38b206173b15.mockapi.io/users")
+      .then((res) => res.json())
+      .then((data) => {
+        setDetail(data);
+      });
+  }, []);
+
   return (
     <div>
-
-      {/* Navbar */}
-
-      <Navbar style={{ height: '80px' }} bg="light" expand="lg">
-        <Container style={{ marginLeft: '200px' }} fluid>
-          <Navbar.Brand href="#" style={{ fontWeight: 'bolder' }} >Start Bootstrap</Navbar.Brand>
-          <Navbar.Toggle aria-controls="navbarScroll" />
-          <Navbar.Collapse id="navbarScroll">
-            <Nav
-              className="me-auto my-2 my-lg-0"
-              style={{ maxHeight: '100px' }}
-              navbarScroll
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {/* Navbar */}
+        <AppBar position="static">
+          <Toolbar>
+            <Button color="inherit" onClick={() => navigate("/dashboard")}>
+              <h4>Dashboard</h4>
+            </Button>&nbsp;&nbsp;
+            <Button color="inherit" onClick={()=>navigate("/adduser")} >
+              <h4> Add new user</h4>
+            </Button>&nbsp;&nbsp;
+            {/* Dark and light Theme provided */}
+            <Button
+              color="inherit"
+              onClick={() => setMode(mode === "light" ? "dark" : "light")}
             >
-              <Nav.Link href="#action1">Home</Nav.Link>
-              <Nav.Link href="#action2">About</Nav.Link>
-              <NavDropdown title="Shop" id="navbarScrollingDropdown">
-                <NavDropdown.Item href="#action3">All Products</NavDropdown.Item>
-                <NavDropdown.Item href="#action4">
-                  Popular Items
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action5">
-                  New Arrivals
-                </NavDropdown.Item>
-              </NavDropdown>
-            </Nav>
-            <Button variant="outline-dark" style={{ marginRight: '200px' }}> <ShoppingCartIcon />Cart {count}</Button>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-      <Navbar />
-      {/* Header */}
-      <div class="jumbotron text-center" style={{ backgroundColor: 'black', height: '350px', color: 'white' }}>
-        <p style={{ paddingTop: '110px', fontStyle: 'initial', fontSize: '60px', fontWeight: 'bolder' }}>Shop in Style</p>
-        <p style={{ color: 'grey', fontSize: '20px', fontWeight: 'bolder' }}>With this shop homepage template</p>
-      </div>
-      <br />
-      {/* Content */}
-      <div>
-        <Info increment={increment} decrement={decrement} />
-      </div>
-      {/* footer */}
-      <div class="jumbotron text-center" style={{ backgroundColor: 'black', height: '150px', color: 'white' }}>
-        <p style={{ color: 'white', fontSize: '20px', fontWeight: 'light', paddingTop: '50px', marginTop: '150px' }}>Copyright © Your Website 2022</p>
-      </div>
-    </div>
-  );
-}
+              <h4>{mode === "light" ? "dark" : "light"} mode</h4>
+            </Button>
+          </Toolbar>
+        </AppBar>
 
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/edit/:userid" element={<EditUser />} />
+          <Route path="/adduser" element={<AddUser  detail={detail} setDetail={setDetail}/>} />
+          <Route path="/userdetail/:userid" element={<UserDetail />} />
+        </Routes>
+
+
+      </ThemeProvider>
+    </div>
+  )
+}
 export default App;
